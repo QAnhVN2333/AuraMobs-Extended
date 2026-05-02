@@ -30,6 +30,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.HandlerList;
 
 import java.util.*;
 
@@ -61,6 +62,7 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
     private boolean ignoreMythicMobs;
     private Set<String> spawnReasons;
     private StagePlaceholderManager stagePlaceholderManager;
+    private MobLevelRecalc levelRecalc;
 
     @Override
     public void onLoad() {
@@ -105,19 +107,7 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         stagePlaceholderManager = new StagePlaceholderManager(this);
         stagePlaceholderManager.loadConfiguration();
 
-        this.getServer().getPluginManager().registerEvents(new MobSpawn(this), this);
-        this.getServer().getPluginManager().registerEvents(new EntityXpGainListener(this), this);
-        if (namesEnabled) {
-            this.getServer().getPluginManager().registerEvents(new MobDamage(this), this);
-            this.getServer().getPluginManager().registerEvents(new MobTransform(this), this);
-            this.getServer().getPluginManager().registerEvents(new PlayerJoinLeave(this), this);
-            if (optionBoolean("custom_name.display_by_range")) {
-                this.getServer().getPluginManager().registerEvents(new MoveEvent(this), this);
-            }
-        }
-
-        this.getServer().getPluginManager().registerEvents(new MobDeath(this), this);
-        this.getServer().getPluginManager().registerEvents(new PlayerDeathMessage(this), this);
+        registerCoreListeners();
 
         new Metrics(this, bstatsId);
 
@@ -133,15 +123,16 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         mythicMobsEnabled = getServer().getPluginManager().isPluginEnabled("MythicMobs");
         spawnReasons = new HashSet<>(optionList("spawn_reasons"));
 
-        if (optionBoolean("level_recalc.enabled")) {
-            MobLevelRecalc recalc = new MobLevelRecalc(this);
-            recalc.start();
-            this.getServer().getPluginManager().registerEvents(recalc, this);
-        }
+        restartLevelRecalc();
     }
 
     @Override
     public void onDisable() {
+        // Stop any active periodic recalc task on shutdown.
+        if (levelRecalc != null) {
+            levelRecalc.stop();
+        }
+        HandlerList.unregisterAll(this);
     }
 
     public void loadWorlds() {
@@ -369,5 +360,70 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
     @Override
     public void logSevere(String message) {
         getLogger().severe(message);
+    }
+
+    public void reloadRuntime() {
+        // Reload config and message data first.
+        reloadConfig();
+        configManager.loadConfig();
+        polyglot.getMessageManager().loadMessages();
+
+        // Refresh cached config-derived values.
+        language = Locale.forLanguageTag(optionString("language").replace("_", "-"));
+        namesEnabled = optionBoolean("custom_name.enabled");
+        ignoreMythicMobs = optionBoolean("custom_name.ignore_mythic_mobs");
+        formatter = new Formatter(optionInt("custom_name.health_rounding_places"));
+        placeholderAPIEnabled = getServer().getPluginManager().isPluginEnabled("PlaceholderAPI");
+        mythicMobsEnabled = getServer().getPluginManager().isPluginEnabled("MythicMobs");
+        spawnReasons = new HashSet<>(optionList("spawn_reasons"));
+        loadWorlds();
+
+        // Reload auxiliary managers that depend on config.
+        scaleManager.loadConfiguration();
+        stagePlaceholderManager.loadConfiguration();
+
+        // Stop old tasks and re-register listeners with updated toggles.
+        if (levelRecalc != null) {
+            levelRecalc.stop();
+            levelRecalc = null;
+        }
+        HandlerList.unregisterAll(this);
+        registerCoreListeners();
+
+        // Restart the recalc task if needed for updated settings.
+        restartLevelRecalc();
+    }
+
+    private void registerCoreListeners() {
+        // Always-on listeners.
+        getServer().getPluginManager().registerEvents(new MobSpawn(this), this);
+        getServer().getPluginManager().registerEvents(new EntityXpGainListener(this), this);
+        getServer().getPluginManager().registerEvents(new MobDeath(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathMessage(this), this);
+
+        // Optional listeners that depend on custom name toggles.
+        if (namesEnabled) {
+            getServer().getPluginManager().registerEvents(new MobDamage(this), this);
+            getServer().getPluginManager().registerEvents(new MobTransform(this), this);
+            getServer().getPluginManager().registerEvents(new PlayerJoinLeave(this), this);
+            if (optionBoolean("custom_name.display_by_range")) {
+                getServer().getPluginManager().registerEvents(new MoveEvent(this), this);
+            }
+        }
+    }
+
+    private void restartLevelRecalc() {
+        // Stop any existing periodic task before applying new settings.
+        if (levelRecalc != null) {
+            levelRecalc.stop();
+            levelRecalc = null;
+        }
+
+        // Register the listener if recalc just got enabled.
+        if (optionBoolean("level_recalc.enabled")) {
+            levelRecalc = new MobLevelRecalc(this);
+            getServer().getPluginManager().registerEvents(levelRecalc, this);
+            levelRecalc.start();
+        }
     }
 }

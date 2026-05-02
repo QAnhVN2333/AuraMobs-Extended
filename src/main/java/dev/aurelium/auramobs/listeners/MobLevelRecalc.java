@@ -35,6 +35,11 @@ public class MobLevelRecalc implements Listener {
     }
 
     public void start() {
+        // Stop any previous task before starting a new schedule.
+        stop();
+        if (!isRecalcEnabled()) {
+            return;
+        }
         if (!isPeriodicMode()) {
             return;
         }
@@ -49,8 +54,19 @@ public class MobLevelRecalc implements Listener {
         periodicTask.runTaskTimer(plugin, intervalTicks, intervalTicks);
     }
 
+    public void stop() {
+        // Cancel the periodic task when reloading or disabling recalc.
+        if (periodicTask != null) {
+            periodicTask.cancel();
+            periodicTask = null;
+        }
+    }
+
     @EventHandler
     public void onMobTargetPlayer(EntityTargetLivingEntityEvent event) {
+        if (!isRecalcEnabled()) {
+            return;
+        }
         if (!isEventMode()) {
             return;
         }
@@ -79,6 +95,9 @@ public class MobLevelRecalc implements Listener {
     }
 
     private void runPeriodicScan() {
+        if (!isRecalcEnabled()) {
+            return;
+        }
         int batchSize = Math.max(1, plugin.optionInt("level_recalc.batch_size"));
         int radius = getRadius();
         int processed = 0;
@@ -239,6 +258,11 @@ public class MobLevelRecalc implements Listener {
             return true;
         }
         return worldGuard.mobsEnabled(location);
+    }
+
+    private boolean isRecalcEnabled() {
+        // Read the latest config toggle so reloads take effect immediately.
+        return plugin.optionBoolean("level_recalc.enabled");
     }
 
     private boolean isEventMode() {

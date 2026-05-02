@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1
+### Changes
+- Improve runtime reload of listeners and recalc
+
 ## 2.3.0
 
 ### New Features

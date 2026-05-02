@@ -32,12 +32,8 @@ public class AuraMobsCommand extends BaseCommand {
     @Subcommand("reload")
     @CommandPermission("auramobs.reload")
     public void onReload(CommandSender sender) {
-        plugin.reloadConfig();
-        plugin.getConfigManager().loadConfig();
-        plugin.getPolyglot().getMessageManager().loadMessages();
-        plugin.setLanguage(Locale.forLanguageTag(plugin.optionString("language").replace("_", "-")));
-        plugin.getScaleManager().loadConfiguration();
-        plugin.getStagePlaceholderManager().loadConfiguration();
+        // Reload runtime state so cached config and recalc tasks are refreshed.
+        plugin.reloadRuntime();
         sender.sendMessage(ColorUtils.colorMessage(plugin.getMsg("commands.reload")));
     }
 
