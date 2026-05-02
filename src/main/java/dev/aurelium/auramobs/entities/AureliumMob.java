@@ -8,10 +8,12 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import net.objecthunter.exp4j.function.Function;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.math.BigDecimal;
@@ -36,9 +38,10 @@ public class AureliumMob {
         Location mobloc = mob.getLocation();
         Location spawnpoint = mob.getWorld().getSpawnLocation();
         double distance = mobloc.distance(spawnpoint);
-        double startDamage = getAttributeBaseValue(mob, Attribute.GENERIC_ATTACK_DAMAGE);
-        double startHealth = getAttributeBaseValue(mob, Attribute.GENERIC_MAX_HEALTH);
-        double startSpeed = getAttributeBaseValue(mob, Attribute.GENERIC_MOVEMENT_SPEED);
+        // Read or store the original base attributes to avoid compounding on recalc.
+        double startDamage = getOrStoreBaseAttribute(mob, Attribute.GENERIC_ATTACK_DAMAGE, plugin.getBaseDamageKey());
+        double startHealth = getOrStoreBaseAttribute(mob, Attribute.GENERIC_MAX_HEALTH, plugin.getBaseHealthKey());
+        double startSpeed = getOrStoreBaseAttribute(mob, Attribute.GENERIC_MOVEMENT_SPEED, plugin.getBaseSpeedKey());
 
         String prefix = plugin.isBossMob(mob) ? "bosses." : "mob_defaults.";
         String damageFormula = MessageUtils.setPlaceholders(null, plugin.optionString(prefix + "damage.formula")
@@ -159,6 +162,19 @@ public class AureliumMob {
         } else {
             return BigDecimal.valueOf(instance.getBaseValue()).setScale(2, RoundingMode.CEILING).doubleValue();
         }
+    }
+
+    private double getOrStoreBaseAttribute(LivingEntity entity, Attribute attribute, NamespacedKey key) {
+        // Prefer stored base values so recalculations stay stable.
+        PersistentDataContainer data = entity.getPersistentDataContainer();
+        Double stored = data.get(key, PersistentDataType.DOUBLE);
+        if (stored != null) {
+            return stored;
+        }
+        // Capture the current base once for new mobs.
+        double baseValue = getAttributeBaseValue(entity, attribute);
+        data.set(key, PersistentDataType.DOUBLE, baseValue);
+        return baseValue;
     }
 
     private void setAttributeBaseValue(LivingEntity entity, Attribute attribute, double value) {

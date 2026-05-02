@@ -43,6 +43,9 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
     private NamespacedKey recalcKey;
     private NamespacedKey targetKey;
     private NamespacedKey levelLockKey;
+    private NamespacedKey baseDamageKey;
+    private NamespacedKey baseHealthKey;
+    private NamespacedKey baseSpeedKey;
     private WorldGuardHook worldGuard;
     private AuraSkillsApi auraSkills;
     private double maxHealth;
@@ -100,6 +103,9 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         recalcKey = new NamespacedKey(this, "auramobs_last_recalc");
         targetKey = new NamespacedKey(this, "auramobs_last_target");
         levelLockKey = new NamespacedKey(this, "auramobs_level_locked");
+        baseDamageKey = new NamespacedKey(this, "auramobs_base_damage");
+        baseHealthKey = new NamespacedKey(this, "auramobs_base_health");
+        baseSpeedKey = new NamespacedKey(this, "auramobs_base_speed");
         namesEnabled = optionBoolean("custom_name.enabled");
         scaleManager = new ScaleManager(this);
         scaleManager.loadConfiguration();
@@ -292,6 +298,18 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
 
     public NamespacedKey getLevelLockKey() {
         return levelLockKey;
+    }
+
+    public NamespacedKey getBaseDamageKey() {
+        return baseDamageKey;
+    }
+
+    public NamespacedKey getBaseHealthKey() {
+        return baseHealthKey;
+    }
+
+    public NamespacedKey getBaseSpeedKey() {
+        return baseSpeedKey;
     }
 
     public boolean isPlaceholderAPIEnabled() {
