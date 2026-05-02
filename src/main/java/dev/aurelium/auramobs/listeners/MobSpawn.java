@@ -1,13 +1,9 @@
 package dev.aurelium.auramobs.listeners;
 
 import dev.aurelium.auramobs.AuraMobs;
-import dev.aurelium.auramobs.api.WorldGuardHook;
 import dev.aurelium.auramobs.entities.AureliumMob;
-import dev.aurelium.auramobs.util.CustomFunctions;
-import dev.aurelium.auramobs.util.MessageUtils;
+import dev.aurelium.auramobs.util.MobLevelCalculator;
 import io.lumine.mythic.core.constants.MobKeys;
-import net.objecthunter.exp4j.ExpressionBuilder;
-import net.objecthunter.exp4j.function.Function;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -25,15 +21,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class MobSpawn implements Listener {
 
     private final AuraMobs plugin;
-    private final Random random = new Random();
+    private final MobLevelCalculator levelCalculator;
 
     public MobSpawn(AuraMobs plugin) {
         this.plugin = plugin;
+        this.levelCalculator = new MobLevelCalculator(plugin);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -149,9 +145,9 @@ public class MobSpawn implements Listener {
                 if (overrideLevel != 0) {
                     level = overrideLevel;
                 } else {
-                    level = getCalculatedLevel(entity, playerCount, distance, maxLevel, minLevel, sumLevel);
+                    level = levelCalculator.calculateLevel(entity, playerCount, distance, maxLevel, minLevel, sumLevel);
                 }
-                new AureliumMob(entity, correctLevel(entity.getLocation(), level), plugin);
+                new AureliumMob(entity, levelCalculator.clampToWorldGuard(entity.getLocation(), level), plugin);
             }
         };
     }
@@ -161,44 +157,6 @@ public class MobSpawn implements Listener {
             if (meta.asBoolean()) return true;
         }
         return false;
-    }
-
-    private int getCalculatedLevel(LivingEntity entity, int playerCount, double distance, int maxLevel, int minLevel, int sumLevel) {
-        int level;
-        String lformula;
-        String prefix = plugin.isBossMob(entity) ? "bosses.level." : "mob_level.";
-        int globalOnline = plugin.getServer().getOnlinePlayers().size();
-        if (playerCount == 0) {
-            lformula = MessageUtils.setPlaceholders(null, plugin.optionString(prefix + "backup_formula")
-                    .replace("{distance}", Double.toString(distance))
-                    .replace("{sumlevel_global}", Integer.toString(plugin.getGlobalLevel()))
-                    .replace("{playercount}", globalOnline > 0 ? String.valueOf(globalOnline) : "1")
-                    .replace("{location_x}", Double.toString(entity.getLocation().getX()))
-                    .replace("{location_y}", Double.toString(entity.getLocation().getY()))
-                    .replace("{location_z}", Double.toString(entity.getLocation().getZ()))
-                    .replace("{random_int}", String.valueOf(random.nextInt(100) + 1))
-                    .replace("{random_double}", String.valueOf(random.nextDouble()))
-            );
-        } else {
-            lformula = MessageUtils.setPlaceholders(null, plugin.optionString(prefix + "formula")
-                    .replace("{highestlvl}", Integer.toString(maxLevel))
-                    .replace("{lowestlvl}", Integer.toString(minLevel))
-                    .replace("{sumlevel}", Integer.toString(sumLevel))
-                    .replace("{playercount}", Integer.toString(playerCount))
-                    .replace("{distance}", Double.toString(distance))
-                    .replace("{sumlevel_global}", Integer.toString(plugin.getGlobalLevel()))
-                    .replace("{location_x}", Double.toString(entity.getLocation().getX()))
-                    .replace("{location_y}", Double.toString(entity.getLocation().getY()))
-                    .replace("{location_z}", Double.toString(entity.getLocation().getZ()))
-                    .replace("{random_int}", String.valueOf(random.nextInt(100) + 1))
-                    .replace("{random_double}", String.valueOf(random.nextDouble()))
-            );
-        }
-        ExpressionBuilder lBuilder = new ExpressionBuilder(lformula);
-        for (Function func : CustomFunctions.getCustomFunctions()) lBuilder.function(func);
-        level = (int) lBuilder.build().evaluate();
-        level = Math.min(level, plugin.optionInt(prefix + "max_level"));
-        return level;
     }
 
     private int getMetadataLevel(Entity entity) {
@@ -216,17 +174,6 @@ public class MobSpawn implements Listener {
             }
         }
         return overrideLevel;
-    }
-
-    public int correctLevel(Location loc, int level) {
-        WorldGuardHook wg = plugin.getWorldGuard();
-        if (wg == null) {
-            return level;
-        }
-
-        if (level < wg.getMinLevel(loc)) {
-            return wg.getMinLevel(loc);
-        } else return Math.min(level, wg.getMaxLevel(loc));
     }
 
 }

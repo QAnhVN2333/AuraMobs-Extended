@@ -16,6 +16,7 @@ import dev.aurelium.auramobs.config.OptionValue;
 import dev.aurelium.auramobs.listeners.*;
 import dev.aurelium.auramobs.util.CustomFunctions;
 import dev.aurelium.auramobs.util.Formatter;
+import dev.aurelium.auramobs.util.StagePlaceholderManager;
 import dev.aurelium.auramobs.entities.ScaleManager;
 import dev.aurelium.auraskills.api.AuraSkillsApi;
 import dev.aurelium.auraskills.api.skill.Skill;
@@ -38,6 +39,9 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
     private NamespacedKey mobKey;
     private NamespacedKey levelKey;
     private NamespacedKey summonKey;
+    private NamespacedKey recalcKey;
+    private NamespacedKey targetKey;
+    private NamespacedKey levelLockKey;
     private WorldGuardHook worldGuard;
     private AuraSkillsApi auraSkills;
     private double maxHealth;
@@ -56,6 +60,7 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
     private boolean mythicMobsEnabled;
     private boolean ignoreMythicMobs;
     private Set<String> spawnReasons;
+    private StagePlaceholderManager stagePlaceholderManager;
 
     @Override
     public void onLoad() {
@@ -90,10 +95,15 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         mobKey = new NamespacedKey(this, "isAureliumMob");
         levelKey = new NamespacedKey(this, "auramobs_level");
         summonKey = new NamespacedKey(this, "auramobs_custom_summoned");
+        recalcKey = new NamespacedKey(this, "auramobs_last_recalc");
+        targetKey = new NamespacedKey(this, "auramobs_last_target");
+        levelLockKey = new NamespacedKey(this, "auramobs_level_locked");
         namesEnabled = optionBoolean("custom_name.enabled");
         scaleManager = new ScaleManager(this);
         scaleManager.loadConfiguration();
         ignoreMythicMobs = optionBoolean("custom_name.ignore_mythic_mobs");
+        stagePlaceholderManager = new StagePlaceholderManager(this);
+        stagePlaceholderManager.loadConfiguration();
 
         this.getServer().getPluginManager().registerEvents(new MobSpawn(this), this);
         this.getServer().getPluginManager().registerEvents(new EntityXpGainListener(this), this);
@@ -107,6 +117,7 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         }
 
         this.getServer().getPluginManager().registerEvents(new MobDeath(this), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerDeathMessage(this), this);
 
         new Metrics(this, bstatsId);
 
@@ -121,6 +132,12 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         placeholderAPIEnabled = getServer().getPluginManager().isPluginEnabled("PlaceholderAPI");
         mythicMobsEnabled = getServer().getPluginManager().isPluginEnabled("MythicMobs");
         spawnReasons = new HashSet<>(optionList("spawn_reasons"));
+
+        if (optionBoolean("level_recalc.enabled")) {
+            MobLevelRecalc recalc = new MobLevelRecalc(this);
+            recalc.start();
+            this.getServer().getPluginManager().registerEvents(recalc, this);
+        }
     }
 
     @Override
@@ -274,6 +291,18 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
         return summonKey;
     }
 
+    public NamespacedKey getRecalcKey() {
+        return recalcKey;
+    }
+
+    public NamespacedKey getTargetKey() {
+        return targetKey;
+    }
+
+    public NamespacedKey getLevelLockKey() {
+        return levelLockKey;
+    }
+
     public boolean isPlaceholderAPIEnabled() {
         return placeholderAPIEnabled;
     }
@@ -284,6 +313,10 @@ public class AuraMobs extends JavaPlugin implements PolyglotProvider {
 
     public Set<String> getSpawnReasons() {
         return spawnReasons;
+    }
+
+    public StagePlaceholderManager getStagePlaceholderManager() {
+        return stagePlaceholderManager;
     }
 
     // Message and config convenience methods

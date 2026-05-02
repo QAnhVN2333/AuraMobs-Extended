@@ -5,6 +5,12 @@ commands:
     invalid: 'Ongeldig mobtype: {type}'
     failure: 'Kon geen lvl {level} {mob} oproepen!'
     success: 'Succesvol een lvl {level} {mob} opgeroepen!'
+  setlevel:
+    console: 'Deze subopdracht kan alleen door spelers worden uitgevoerd!'
+    invalid_level: 'Ongeldig level: {level}'
+    invalid_radius: 'Ongeldige radius: {radius}'
+    no_targets: 'Geen geldige mobs gevonden binnen {radius} blokken.'
+    success: 'Level {level} ingesteld voor {updated}/{total} mobs binnen {radius} blokken. Level is nu vergrendeld.'
 mobs:
   blaze: Blaze
   cave_spider: Grottenspin

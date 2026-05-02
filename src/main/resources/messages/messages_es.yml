@@ -5,6 +5,12 @@ commands:
     invalid: 'Tipo de mob no válido: {type}'
     failure: '¡No se pudo invocar a un {mob} de nivel {level}!'
     success: '¡{mob} de nivel {level} invocado con éxito!'
+  setlevel:
+    console: '¡Este subcomando solo puede ser ejecutado por jugadores!'
+    invalid_level: 'Nivel no válido: {level}'
+    invalid_radius: 'Radio no válido: {radius}'
+    no_targets: 'No se encontraron mobs válidos en un radio de {radius} bloques.'
+    success: 'Nivel {level} aplicado a {updated}/{total} mobs en un radio de {radius} bloques. El nivel queda bloqueado.'
 mobs:
   blaze: Blaze
   cave_spider: Araña de Cueva

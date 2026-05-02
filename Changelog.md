@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.3.0
+
+### New Features
+
+- Add admin setlevel command
+  - Syntax: /auramobs setlevel <level> <radius>
+  - Sets the level of nearby valid mobs and locks them against future recalculation
+- Add level lock support for AuraMobs entities
+  - Locked mobs are skipped by level recalculation
+
+### Changes
+
+- Apply setlevel to both existing AuraMobs and nearby valid hostile mobs
+- Reuse `level_recalc` config rules for boss inclusion, MythicMobs filtering, and world filtering
+- Process large radii in batches using the configured recalc batch size to reduce lag
+- Add permission node `auramobs.setlevel`
+- Add command feedback messages for the new setlevel workflow in all bundled locales
+
 ## 2.2.1
 
 ### Bug Fixes

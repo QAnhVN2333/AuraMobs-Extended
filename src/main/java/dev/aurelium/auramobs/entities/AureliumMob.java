@@ -133,14 +133,18 @@ public class AureliumMob {
 
         mob.getPersistentDataContainer().set(plugin.getMobKey(), PersistentDataType.INTEGER, level1);
         if (plugin.isNamesEnabled()) {
-            mob.setCustomName(ColorUtils.colorMessage(plugin.optionString("custom_name.format")
+            String customName = plugin.optionString("custom_name.format")
                     .replace("{mob}", plugin.getMsg("mobs." + mob.getType().name().toLowerCase(Locale.ROOT)))
                     .replace("{lvl}", String.valueOf(level1))
                     .replace("{health}", formattedHealth)
                     .replace("{maxhealth}", formattedHealth)
-                    .replace("{distance}", Double.toString(distance))
-            ));
+                    .replace("{distance}", Double.toString(distance));
+            customName = plugin.getStagePlaceholderManager().applyStagePlaceholders(customName, level1);
+            mob.setCustomName(ColorUtils.colorMessage(customName));
             mob.setCustomNameVisible(false);
+            if (plugin.optionBoolean("custom_name.allow_natural_despawn")) {
+                mob.setRemoveWhenFarAway(true);
+            }
         }
 
         if (plugin.getScaleManager().hasScaleAttribute()) {

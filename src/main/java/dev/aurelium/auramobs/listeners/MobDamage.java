@@ -44,19 +44,24 @@ public class MobDamage implements Listener {
         resHealth = Math.max(resHealth, 0.0);
         String formattedHealth = plugin.getFormatter().format(resHealth);
         try {
-            entity.setCustomName(ColorUtils.colorMessage(plugin.optionString("custom_name.format")
+            String customName = plugin.optionString("custom_name.format")
                     .replace("{mob}", plugin.getMsg("mobs." + entity.getType().name().toLowerCase(Locale.ROOT)))
                     .replace("{lvl}", Integer.toString(level))
                     .replace("{health}", formattedHealth)
-                    .replace("{maxhealth}", plugin.getFormatter().format(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()))
-            ));
+                    .replace("{maxhealth}", plugin.getFormatter().format(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+            customName = plugin.getStagePlaceholderManager().applyStagePlaceholders(customName, level);
+            entity.setCustomName(ColorUtils.colorMessage(customName));
         } catch (NullPointerException ex){
-            entity.setCustomName(ColorUtils.colorMessage(plugin.optionString("custom_name.format")
+            String customName = plugin.optionString("custom_name.format")
                     .replace("{mob}", entity.getType().name())
                     .replace("{lvl}", Integer.toString(level))
                     .replace("{health}", formattedHealth)
-                    .replace("{maxhealth}", plugin.getFormatter().format(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()))
-            ));
+                    .replace("{maxhealth}", plugin.getFormatter().format(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+            customName = plugin.getStagePlaceholderManager().applyStagePlaceholders(customName, level);
+            entity.setCustomName(ColorUtils.colorMessage(customName));
+        }
+        if (plugin.optionBoolean("custom_name.allow_natural_despawn")) {
+            entity.setRemoveWhenFarAway(true);
         }
 
     }

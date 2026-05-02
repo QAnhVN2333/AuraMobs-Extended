@@ -5,6 +5,12 @@ commands:
     invalid: 'Invalid mob type: {type}'
     failure: 'Failed to summon a lvl {level} {mob}!'
     success: 'Successfully summoned a lvl {level} {mob}!'
+  setlevel:
+    console: 'This subcommand may only be executed by players!'
+    invalid_level: 'Invalid level: {level}'
+    invalid_radius: 'Invalid radius: {radius}'
+    no_targets: 'No valid mobs found within {radius} blocks.'
+    success: 'Set level {level} for {updated}/{total} mobs within {radius} blocks. Levels are now locked.'
 mobs:
   blaze: Blaze
   cave_spider: Cave Spider

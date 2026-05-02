@@ -1,0 +1,68 @@
+commands:
+  reload: 'AuraMobs đã trọng khải thành công!'
+  summon:
+    console: 'Pháp lệnh này chỉ tu sĩ mới có thể thi triển!'
+    invalid: 'Yêu vật không tồn tại: {type}'
+    failure: 'Triệu hoán thất bại! Không thể gọi Lv {level} {mob}!'
+    success: 'Triệu hoán thành công Lv {level} {mob}!'
+  setlevel:
+    console: 'Pháp lệnh này chỉ tu sĩ mới có thể thi triển!'
+    invalid_level: 'Cấp độ không hợp lệ: {level}'
+    invalid_radius: 'Bán kính không hợp lệ: {radius}'
+    no_targets: 'Không có mobs hợp lệ trong phạm vi {radius} khối.'
+    success: 'Đã đặt level {level} cho {updated}/{total} mob trong phạm vi {radius} khối. Tự động tính toán cấp độ sẽ bị khóa.'
+
+mobs:
+  # --- HỆ THI (ZOMBIE/UNDEAD) - Tông Xanh Lục/Xám ---
+  zombie: '&2Hủ Thi Ma Nhân'
+  drowned: '&3Trầm Uyên Thủy Thi'
+  husk: '&6Hoang Sa Khô Thi'
+  zombie_villager: '&2Thi Hóa Phàm Nhân'
+  zombified_piglin: '&2Cương Thi Trư Ma'
+  bogged: '&2Độc Chiểu Khô Cốt'
+  stray: '&bHàn Băng Cốt Ma'
+
+  # --- HỆ CỐT (SKELETON) - Tông Trắng/Xám ---
+  skeleton: '&7Bạch Cốt Cung Thủ'
+  wither_skeleton: '&8&lHắc Cốt Ma Tướng' # Elite: In đậm, màu xám đen
+
+  # --- HỆ HƯ KHÔNG (THE END) - Tông Tím/Hồng ---
+  enderman: '&5&lHư Không Hành Giả'       # Elite: In đậm
+  endermite: '&dHư Không Phệ Trùng'
+  shulker: '&5Hư Không Giáp Xác'
+  ender_dragon: '&5&l« &d&lThái Hư Cổ Long &5&l»' # BOSS: Tím đậm + Tím nhạt, có ngoặc nhấn mạnh
+
+  # --- HỆ U MINH (NETHER) - Tông Đỏ/Vàng/Cam ---
+  ghast: '&f&lU Minh Khấp Hồn'            # Trắng (như ma) + In đậm vì to lớn
+  blaze: '&6Liệt Hỏa Viêm Linh'
+  magma_cube: '&4Nham Hỏa Quái Thạch'
+  piglin: '&6U Minh Trư Tộc'
+  piglin_brute: '&6&lTrư Tộc Chiến Tướng' # Elite: In đậm
+  hoglin: '&cHuyết Nha Trư Thú'
+  wither: '&8&l☠ &4&lDiệt Thế Ma Tôn &8&l☠' # BOSS: Đen + Đỏ đậm, kèm ký tự đầu lâu (nếu font hỗ trợ)
+
+  # --- HỆ ILLAGER (TÀ PHÁI) - Tông Xám Đậm/Xanh Đen ---
+  pillager: '&8Lược Đoạt Giả'
+  vindicator: '&7&lKhai Sơn Phủ Ma'       # Cầm rìu sát thương cao -> In đậm
+  evoker: '&3&lHoán Linh Tà Sư'          # Phép thuật nguy hiểm -> In đậm
+  evoker_fangs: '&7Phệ Hồn Nha'
+  illusioner: '&9Ảo Ảnh Ma Đạo'
+  witch: '&5Độc Dược Vu Bà'
+  ravager: '&8&lMan Hoang Cự Thú'        # Elite: Rất to và mạnh -> In đậm
+  vex: '&bU Hồn Kiếm Linh'
+
+  # --- HỆ TỰ NHIÊN/QUÁI THÚ ---
+  creeper: '&a&lBạo Liệt Mộc Linh'       # Màu xanh lá sáng + In đậm (Vì nó rất nguy hiểm)
+  spider: '&8Hắc Ảnh Ma Chu'
+  cave_spider: '&2Âm Huyệt Độc Chu'
+  slime: '&aBích Lục Nhuyễn Quái'
+  silverfish: '&7Thạch Phệ Trùng'
+  guardian: '&bThâm Hải Thủ Vệ'
+  elder_guardian: '&3&lThái Cổ Ngư Thần' # Mini-BOSS: Màu xanh biển đậm + In đậm
+  phantom: '&9Dực Dạ Ma'
+  breeze: '&bPhong Linh Tinh'
+  warden: '&1&l« &3&lThâm Uyên Trấn Ngục Giả &1&l»' # BOSS: Xanh dương đậm + Xanh lam, cực ngầu
+  creaking: '&6Mộc Mị Quỷ Ảnh'
+  giant: '&2&lThái Cổ Cự Nhân'           # To lớn -> In đậm
+
+file_version: 6

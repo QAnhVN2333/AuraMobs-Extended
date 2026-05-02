@@ -5,6 +5,12 @@ commands:
     invalid: 'Ungültiger Mob-Typ: {type}'
     failure: 'Fehler beim Beschwören eines LvL {level} {mob}!'
     success: 'Erfolgreich einen LvL {level} {mob} beschworen!'
+  setlevel:
+    console: 'Dieser Befehl kann nur von Spielern ausgeführt werden!'
+    invalid_level: 'Ungültiges Level: {level}'
+    invalid_radius: 'Ungültiger Radius: {radius}'
+    no_targets: 'Keine gültigen Mobs im Radius von {radius} Blöcken gefunden.'
+    success: 'Level {level} für {updated}/{total} Mobs im Radius von {radius} Blöcken gesetzt. Level ist jetzt gesperrt.'
 mobs:
   blaze: Lohe
   cave_spider: Höhlenspinne
